@@ -1,17 +1,46 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author: "Sudhakar Athuru"
 output: 
   html_document:
     keep_md: true
 ---
 
-
 ## Loading and preprocessing the data
+### read the data form the .csv file
 
+```{r echo=TRUE}
+setwd("C:/Sudhakar/coursera/05_ReproducibleResearch")
+actdata <- read.csv("./data/activity.csv")
+head(actdata)
+names(actdata)
+summary(actdata)
+```
 
+### process data
+```{r echo=FALSE, results="hide"}
+actAgg <- tapply(actdata$steps, actdata$date, FUN = sum, na.rm = TRUE)
+print(actAgg)
+```
+
+### process data to aggregate steps per day
+```{r echo=TRUE}
+steps_by_day <- aggregate(steps ~ date, actdata, sum)
+head(steps_by_day)
+```
 
 ## What is mean total number of steps taken per day?
+The following histogram shows number of total steps taken per day
+```{r echo=TRUE}
+hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="blue", xlab="Number of Steps")
+```
 
+Compute and print mean and median steps per day:
+```{r computemean, echo=TRUE}
+smean <- as.integer(mean(steps_by_day$steps))
+smedian <- as.integer(median(steps_by_day$steps))
+```
+Mean steps per day are `r smean`. Median steps per day are `r smedian`.
 
 
 ## What is the average daily activity pattern?
