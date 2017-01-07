@@ -2,7 +2,7 @@
 Sudhakar Athuru  
 
 ## Loading and preprocessing the data
-### read the data form the .csv file
+1. Load data form the .csv file
 
 
 ```r
@@ -44,10 +44,7 @@ summary(actdata)
 ##  NA's   :2304     (Other)   :15840
 ```
 
-### process data
-
-
-### process data to aggregate steps per day
+2. process data to aggregate steps per day
 
 ```r
 steps_by_day <- aggregate(steps ~ date, actdata, sum)
@@ -65,15 +62,15 @@ head(steps_by_day)
 ```
 
 ## What is mean total number of steps taken per day?
-The following histogram shows number of total steps taken per day
+1. The following histogram shows number of total steps taken per day
 
 ```r
 hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="blue", xlab="Number of Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
-Compute and print mean and median steps per day:
+2. Compute and print mean and median steps per day:
 
 ```r
 smean <- as.integer(mean(steps_by_day$steps))
@@ -81,10 +78,40 @@ smedian <- as.integer(median(steps_by_day$steps))
 ```
 Mean steps per day are 10766. Median steps per day are 10765.
 
-
 ## What is the average daily activity pattern?
+1. Time series plot of the 5-minute interval (x-axis)and the average number of steps taken, averaged across all days (y-axis)process data to aggregate steps per day
 
 
+```r
+steps_by_interval <- aggregate(steps ~ interval, actdata, mean)
+summary(steps_by_interval)
+```
+
+```
+##     interval          steps        
+##  Min.   :   0.0   Min.   :  0.000  
+##  1st Qu.: 588.8   1st Qu.:  2.486  
+##  Median :1177.5   Median : 34.113  
+##  Mean   :1177.5   Mean   : 37.383  
+##  3rd Qu.:1766.2   3rd Qu.: 52.835  
+##  Max.   :2355.0   Max.   :206.170
+```
+
+```r
+plot(steps_by_interval$interval,steps_by_interval$steps, type="l", xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+2. Which 5-minute interval, on average across all the days in the dataset,
+contains the maximum number of steps?
+
+
+```r
+max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
+```
+
+835 is the 5-minute interval with maximum number of steps.
 
 ## Imputing missing values
 

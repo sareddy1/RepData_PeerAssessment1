@@ -7,7 +7,7 @@ output:
 ---
 
 ## Loading and preprocessing the data
-### read the data form the .csv file
+1. Load data form the .csv file
 
 ```{r echo=TRUE}
 setwd("C:/Sudhakar/coursera/05_ReproducibleResearch")
@@ -17,34 +17,42 @@ names(actdata)
 summary(actdata)
 ```
 
-### process data
-```{r echo=FALSE, results="hide"}
-actAgg <- tapply(actdata$steps, actdata$date, FUN = sum, na.rm = TRUE)
-print(actAgg)
-```
-
-### process data to aggregate steps per day
+2. process data to aggregate steps per day
 ```{r echo=TRUE}
 steps_by_day <- aggregate(steps ~ date, actdata, sum)
 head(steps_by_day)
 ```
 
 ## What is mean total number of steps taken per day?
-The following histogram shows number of total steps taken per day
+1. The following histogram shows number of total steps taken per day
 ```{r echo=TRUE}
 hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="blue", xlab="Number of Steps")
 ```
 
-Compute and print mean and median steps per day:
+2. Compute and print mean and median steps per day:
 ```{r computemean, echo=TRUE}
 smean <- as.integer(mean(steps_by_day$steps))
 smedian <- as.integer(median(steps_by_day$steps))
 ```
 Mean steps per day are `r smean`. Median steps per day are `r smedian`.
 
-
 ## What is the average daily activity pattern?
+1. Time series plot of the 5-minute interval (x-axis)and the average number of steps taken, averaged across all days (y-axis)process data to aggregate steps per day
 
+```{r echo=TRUE}
+steps_by_interval <- aggregate(steps ~ interval, actdata, mean)
+summary(steps_by_interval)
+plot(steps_by_interval$interval,steps_by_interval$steps, type="l", xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
+```
+
+2. Which 5-minute interval, on average across all the days in the dataset,
+contains the maximum number of steps?
+
+```{r echo=TRUE}
+max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
+```
+
+`r max_interval` is the 5-minute interval with maximum number of steps.
 
 
 ## Imputing missing values
