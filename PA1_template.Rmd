@@ -31,10 +31,11 @@ hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="blue", xlab=
 
 2. Compute and print mean and median steps per day:
 ```{r computemean, echo=TRUE}
-smean <- as.integer(mean(steps_by_day$steps))
-smedian <- as.integer(median(steps_by_day$steps))
+###smean <- as.integer(mean(steps_by_day$steps))
+smean <- mean(steps_by_day$steps)
+smedian <- median(steps_by_day$steps)
 ```
-Mean steps per day are `r smean`. Median steps per day are `r smedian`.
+Mean steps per day are `r as.integer(smean)`. Median steps per day are `r as.integer(smedian)`.
 
 ## What is the average daily activity pattern?
 1. Time series plot of the 5-minute interval (x-axis)and the average number of steps taken, averaged across all days (y-axis)process data to aggregate steps per day
@@ -57,6 +58,69 @@ max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
 
 ## Imputing missing values
 
+1. Calculate and report the total number of missing values in the dataset
+(i.e. the total number of rows with NAs)
+```{r echo=TRUE}
+missing <- sum(is.na(actdata))
+```
+There are a total of `r missing` records with missing values in the activity data. 
+
+2. Strategy to fill missing values in the dataset: Missing values were imputed by inserting the average for each interval.
+
+```{r echo=TRUE}
+incomplete <- sum(!complete.cases(actdata))
+imputed_data <- transform(actdata, steps = ifelse(is.na(actdata$steps), steps_by_interval$steps[match(actdata$interval, steps_by_interval$interval)], actdata$steps))
+head(imputed_data)
+```
+
+Zeroes were imputed for 10-01-2012. Missing values were assumed to be zeros to fit the rising trend of the data.
+
+```{r echo=TRUE}
+imputed_data[as.character(imputed_data$date) == "2012-10-01", 1] <- 0
+```
+
+Recount total steps by day and create Histogram.
+```{r echo=TRUE}
+steps_by_day_i <- aggregate(steps ~ date, imputed_data, sum)
+hist(steps_by_day_i$steps, main = paste("Total Steps Each Day"), col="black", xlab="Number of Steps")
+
+#Create Histogram to show difference. 
+hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="gray", xlab="Number of Steps", add=T)
+legend("topright", c("Imputed", "Non-imputed"), col=c("black", "gray"), lwd=10)
+```
+
+Calculate new mean and median for imputed data.
+```{r echo=TRUE}
+smean.i <- mean(steps_by_day_i$steps)
+smedian.i <- median(steps_by_day_i$steps)
+```
+
+Calculate difference between imputed and non-imputed data.
+```{r echo=TRUE}
+mean_diff <- smean.i - smean
+med_diff <- smedian.i - smedian
+```
+
+Calculate total difference.
+```{r echo=TRUE}
+total_diff <- as.integer(sum(steps_by_day_i$steps) - sum(steps_by_day$steps))
+```
+
+* The imputed data mean is `r as.integer(smean.i)`.
+* The imputed data median `r as.integer(smedian.i)`.
+* The difference between the non-imputed mean and imputed mean is `r mean_diff`.
+* The difference between the non-imputed median and imputed median is `r med_diff`.
+* The difference between total number of steps between imputed and non-imputed data is `r total_diff`. Hence, there were `r total_diff` more steps in the imputed data.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r echo=TRUE}
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+imputed_data$dow = as.factor(ifelse(is.element(weekdays(as.Date(imputed_data$date)),weekdays), "Weekday", "Weekend"))
+steps_by_interval_i <- aggregate(steps ~ interval + dow, imputed_data, mean)
+
+library(lattice)
+xyplot(steps_by_interval_i$steps ~ steps_by_interval_i$interval|steps_by_interval_i$dow, main="Average Steps per Day by Interval",xlab="Interval", ylab="Steps",layout=c(1,2), type="l")
+```
+
+On weekdays, steps are higher during 6am to 9am compared to weekends at the same time. This shows that people are more active earlier in the day on weekdays then the activity goes down on weekdays after 10am most likely because they are in sedentary work environment during work day. 
